@@ -1,3 +1,4 @@
+import { InAppBrowser } from 'ionic-native';
 import { Component } from '@angular/core';
 import { ModalController, Platform } from 'ionic-angular';
 import { Keyboard } from 'ionic-native';
@@ -41,15 +42,46 @@ export class HomePage {
   }
 
   loadSettings(): void {
-    this.redditService.fetchData();
+    this.dataService.getData().then((settings) => {
+      if (settings && typeof(settings) != "undefined") {
+        let newSettings = JSON.parse(settings);
+        this.redditService.settings = newSettings;
+
+        if (newSettings.length != 0) {
+          this.redditService.sort = newSettings.sort;
+          this.redditService.perPage = newSettings.perPage;
+          this.redditService.subreddit = newSettings.subreddit;
+
+        }
+      }
+
+      this.changeSubreddit();
+    });
   }
 
   showComments(post): void {
-    console.log("TODO: Implement showComments()");
+    let browser = new InAppBrowser(`http://reddit.com${post.data.permalink}`, '_system');
   }
 
   openSettings(): void {
-    console.log("TODO: Implement openSettings()");
+    let settingsModal = this.modalCtrl.create(SettingsPage, {
+      perPage: this.redditService.perPage,
+      sort: this.redditService.sort,
+      subreddit: this.redditService.subreddit
+    });
+
+    settingsModal.onDidDismiss(settings => {
+      if (settings) {
+        this.redditService.perPage = settings.perPage;
+        this.redditService.sort = settings.sort;
+        this.redditService.subreddit = settings.subreddit;
+
+        this.dataService.save(settings);
+        this.changeSubreddit();
+      }
+    });
+
+    settingsModal.present();
   }
 
   playVideo(e, post): void {
@@ -75,11 +107,11 @@ export class HomePage {
   }
 
   changeSubreddit(): void {
-    console.log("TODO: Implement changeSubreddit()");
+    this.redditService.resetPosts();
   }
 
   loadMore(): void {
-    console.log("TODO: Implement loadMore()");
+    this.redditService.nextPage();
   }
 
 }

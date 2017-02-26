@@ -92,4 +92,17 @@ export class Reddit {
       console.log("subreddit doesn't exist!");
     });
   }
+
+  nextPage(): void {
+    this.page++;
+    this.fetchData();
+  }
+
+  resetPosts(): void {
+    this.page = 1;
+    this.posts = [];
+    this.after = null;
+    this.fetchData();
+  }
+
 }
