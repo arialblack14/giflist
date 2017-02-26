@@ -41,7 +41,7 @@ export class HomePage {
   }
 
   loadSettings(): void {
-    console.log("TODO: Implement loadSettings()");
+    this.redditService.fetchData();
   }
 
   showComments(post): void {
@@ -53,7 +53,25 @@ export class HomePage {
   }
 
   playVideo(e, post): void {
-    console.log("TODO: Implement playVideo()");
+    // Create a reference to the video
+    let video = e.target;
+
+    if (!post.alreadyLoaded) {
+      post.showLoader = true;
+    }
+
+    // Toggle the video playing
+    if (video.paused) {
+      // show the loader gif
+      video.play();
+      // Once the video starts playing, remove the loader gif
+      video.addEventListener("playing", (e) => {
+        post.showLoader = false;
+        post.alreadyLoaded = true;
+      });
+    } else {
+      video.pause();
+    }
   }
 
   changeSubreddit(): void {
